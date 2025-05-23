@@ -15,11 +15,10 @@ public class Cliente {
             String menu = """
                 === CLIENTE ===
                 1 - Buscar por ID
-                2 - Buscar por dispositivo
-                3 - Remover registro
-                4 - Buscar por ID e mostrar passos na lista
-                5 - Listar registros
-                6 - Contar registros
+                2 - Remover registro
+                3 - Buscar por ID e mostrar passos na lista
+                4 - Listar registros
+                5 - Contar registros
                 0 - Sair
                 Escolha:
                 """;
@@ -33,25 +32,25 @@ public class Cliente {
                         String id = scanner.nextLine();
                         out.println("BUSCAR " + id);
                         break;
+//                    case "2":
+//                        System.out.print("ID do dispositivo: ");
+//                        String disp = scanner.nextLine();
+//                        out.println("BUSCAR_DISPOSITIVO " + disp);
+//                        break;
                     case "2":
-                        System.out.print("ID do dispositivo: ");
-                        String disp = scanner.nextLine();
-                        out.println("BUSCAR_DISPOSITIVO " + disp);
-                        break;
-                    case "3":
                         System.out.print("ID do registro a remover: ");
                         String idRem = scanner.nextLine();
                         out.println("REMOVER " + idRem);
                         break;
-                    case "4":
+                    case "3":
                         System.out.print("ID do registro: ");
                         String idBusca = scanner.nextLine();
                         out.println("BUSCAR_PASSOS " + idBusca);
                         break;
-                    case "5":
+                    case "4":
                         out.println("LISTAR");
                         break;
-                    case "6":
+                    case "5":
                         out.println("CONTAR");
                         break;
                     case "0":
@@ -63,9 +62,9 @@ public class Cliente {
                 }
 
                 String linha;
-                while ((linha = in.readLine()) != null && !linha.trim().isEmpty()) {
+                while ((linha = in.readLine()) != null) {
+                    if (linha.trim().isEmpty()) break; // fim da resposta
                     System.out.println(linha);
-                    if (!in.ready()) break;
                 }
             }
 

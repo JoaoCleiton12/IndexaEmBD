@@ -14,7 +14,7 @@ class NoAVL {
         this.altura = 1;
     }
 
-    // Getters e Setters
+
     public int getChave() { return chave; }
     public RegistroClimatico getReferencia() { return referencia; }
     public NoAVL getEsquerda() { return esquerda; }

@@ -15,6 +15,8 @@ public class Servidor {
     private static ArvoreAVL arvore = new ArvoreAVL();
     private static int idSequencial = 1;
     private static PrintWriter logWriter;
+    private static int id = 101;
+    private static int[] ids11, ids12, ids13, ids14, ids15;
 
     public static void main(String[] args) {
         try {
@@ -48,44 +50,62 @@ public class Servidor {
             System.out.println("[1] Inserir 5 registros (5 dispositivos)");
             System.out.println("[2] Alterar 5 registros");
             System.out.println("[3] Remover 5 registros");
-            System.out.println("[4] Listar registros");
+            System.out.println("[4] Listar registros (Conforme esta na lista)");
             System.out.println("[0] Sair do menu do dispositivo");
             System.out.print("Escolha: ");
 
             String opcao = scanner.nextLine();
             switch (opcao) {
-                case "1": inserir5(); break;
-                case "2": alterar(4);
-                          alterar(5);
-                          alterar(6);
-                          alterar(7);
-                          alterar(8);break;
+                case "1": ids11 = inserirMultiplos("D11",5);
+                          ids12 = inserirMultiplos("D12",5);
+                          ids13 = inserirMultiplos("D13",5);
+                          ids14 = inserirMultiplos("D14",5);
+                          ids15 = inserirMultiplos("D15",5); break;
+                case "2": alterarMultiplos(ids11);
+                          alterarMultiplos(ids12);
+                          alterarMultiplos(ids13);
+                          alterarMultiplos(ids14);
+                          alterarMultiplos(ids15);
+                          break;
 
-                case "3": remover(11);
-                          remover(12);
-                          remover(13);
-                          remover(14);
-                          remover(15); break;
-                case "4": lista.listar(); break;
+                case "3": removerMultiples(ids11);
+                          removerMultiples(ids12);
+                          removerMultiples(ids13);
+                          removerMultiples(ids14);
+                          removerMultiples(ids15); break;
+                case "4": lista.listar(); break;//---------------------------------------VER ISSO
                 case "0": System.out.println("Encerrando menu do dispositivo..."); return;
                 default: System.out.println("Opção inválida");
             }
         }
     }
 
-    private static void inserir5() {
-        Random rand = new Random();
-        for (int i = 0; i < 5; i++) {
-            String dispositivo = "D" + (10 + i);
-            double temp = 15 + rand.nextDouble() * 20;
-            double umi = 40 + rand.nextDouble() * 50;
-            double pres = 980 + rand.nextDouble() * 40;
+    private static int[] inserirMultiplos(String dispositivo, int quantidade) {
+        int[] ids = new int[quantidade];
+        for (int i = 0; i < quantidade; i++) {
+            ids[i] = inserir(dispositivo);
+        }
+        return ids;
+    }
 
-            RegistroClimatico novo = new RegistroClimatico(idSequencial++, dispositivo, temp, umi, pres);
-            lista.inserir(novo);
-            arvore.inserir(novo.getIdRegistro(), novo);
-            registrarLog("INSERIR_TESTE", novo.getIdRegistro(), arvore.getUltimaRotacao());
-            System.out.println("[DISPOSITIVO] Registro inserido: " + novo);
+    private static int inserir(String dispositivo) {
+        Random rand = new Random();
+        double temp = 15 + rand.nextDouble() * 20;
+        double umi = 40 + rand.nextDouble() * 50;
+        double pres = 980 + rand.nextDouble() * 40;
+
+        int novoId = id++;
+        RegistroClimatico novo = new RegistroClimatico(novoId, dispositivo, temp, umi, pres);
+        lista.inserir(novo);
+        arvore.inserir(novo.getIdRegistro(), novo);
+        registrarLog("INSERIR_TESTE", novo.getIdRegistro(), arvore.getUltimaRotacao());
+        System.out.println("[DISPOSITIVO] Registro inserido: " + novo);
+        return novoId;
+    }
+
+    private static void alterarMultiplos(int[] ids) {
+        for (int id : ids) {
+            alterar(id);
         }
     }
 
@@ -101,6 +121,14 @@ public class Servidor {
             System.out.println("[DISPOSITIVO] ID " + id + " não encontrado na árvore.");
         }
     }
+
+
+    private static void removerMultiples(int[] ids) {
+        for (int id : ids) {
+            remover(id);
+        }
+    }
+
 
     private static void remover(int id) {
         RegistroClimatico reg = arvore.buscar(id);
@@ -130,19 +158,28 @@ public class Servidor {
 
 
                 switch (comando) {
-                    case "BUSCAR": //Está usando arvore
+                    case "BUSCAR":
                         if (partes.length != 2) {
                             out.println("Uso: BUSCAR <id>");
+                            out.println();
                         } else {
                             int id = Integer.parseInt(partes[1]);
                             RegistroClimatico reg = arvore.buscar(id);
-                            out.println(reg != null ? reg : "Registro não encontrado.");
+                            int passos = arvore.buscarContandoPassos(id);
+                            if (reg != null) {
+                                out.println(reg);
+                                out.println("→ Encontrado em " + passos + " passos na árvore AVL.");
+                            } else {
+                                out.println("Registro não encontrado.");
+                            }
+                            out.println();
                         }
                         break;
 
-                    case "REMOVER": //Está usando arvore
+                    case "REMOVER":
                         if (partes.length != 2) {
                             out.println("Uso: REMOVER <id>");
+                            out.println();
                         } else {
                             int id = Integer.parseInt(partes[1]);
                             RegistroClimatico reg = arvore.buscar(id);
@@ -154,30 +191,14 @@ public class Servidor {
                             } else {
                                 out.println("Registro não encontrado.");
                             }
-                        }
-                        break;
-
-                    case "BUSCAR_DISPOSITIVO":
-                        if (partes.length != 2) {
-                            out.println("Uso: BUSCAR_DISPOSITIVO <idDispositivo>");
-                        } else {
-                            String dispositivo = partes[1];
-                            RegistroClimatico atual = lista.getInicio();
-                            boolean encontrou = false;
-                            while (atual != null) {
-                                if (atual.getIdDispositivo().equals(dispositivo)) {
-                                    out.println(atual);
-                                    encontrou = true;
-                                }
-                                atual = atual.getProximo();
-                            }
-                            if (!encontrou) out.println("Nenhum registro encontrado para o dispositivo.");
+                            out.println();
                         }
                         break;
 
                     case "BUSCAR_PASSOS":
                         if (partes.length != 2) {
                             out.println("Uso: BUSCAR_PASSOS <id>");
+                            out.println();
                         } else {
                             int id = Integer.parseInt(partes[1]);
                             int passos = lista.buscarContandoPassos(id);
@@ -186,11 +207,13 @@ public class Servidor {
                             } else {
                                 out.println("Registro encontrado em " + passos + " passos na lista ligada.");
                             }
+                            out.println();
                         }
                         break;
 
                     case "CONTAR":
                         out.println("Total de registros: " + lista.contar());
+                        out.println();
                         break;
 
                     case "LISTAR":
@@ -199,14 +222,16 @@ public class Servidor {
                         arvore.emOrdem(w);
                         w.flush();
                         out.println(buf.toString().trim());
+                        out.println();
                         break;
 
                     case "SAIR":
                         out.println("Conexão encerrada.");
-                        return;
+                        break;
 
                     default:
                         out.println("Comando desconhecido.");
+                        out.println();
                 }
             }
         } catch (IOException e) {
@@ -223,27 +248,34 @@ public class Servidor {
     }
 
     private static void popularRegistrosIniciais() {
+        int total = 100;
         Random rand = new Random();
-        List<RegistroClimatico> tempList = new ArrayList<>();
+        // Marca quais IDs já foram usados
+        boolean[] usado = new boolean[total + 1]; // índices 1..100
 
-        for (int i = 0; i < 100; i++) {
-            String dispositivo = "D" + (i % 10);
-            double temp = 15 + rand.nextDouble() * 20;
-            double umi = 40 + rand.nextDouble() * 50;
-            double pres = 980 + rand.nextDouble() * 40;
+        for (int i = 0; i < total; i++) {
+            // Gera um ID aleatório entre 1 e 100, sem repetição
+            int id;
+            do {
+                id = rand.nextInt(total) + 1; // [1,100]
+            } while (usado[id]);
+            usado[id] = true;
 
-            RegistroClimatico reg = new RegistroClimatico(idSequencial++, dispositivo, temp, umi, pres);
-            tempList.add(reg);
-        }
+            // Cria o registro com esse ID único
+            String dispositivo = "D" + (id % 10);
+            double temp       = 15  + rand.nextDouble() * 20;
+            double umi        = 40  + rand.nextDouble() * 50;
+            double pres       = 980 + rand.nextDouble() * 40;
 
-        Collections.shuffle(tempList);
+            RegistroClimatico reg = new RegistroClimatico(id, dispositivo, temp, umi, pres);
 
-        for (RegistroClimatico reg : tempList) {
+            // Insere na lista e na AVL normalmente
             lista.inserir(reg);
             arvore.inserir(reg.getIdRegistro(), reg);
             registrarLog("AUTOINSERCAO", reg.getIdRegistro(), arvore.getUltimaRotacao());
         }
 
-        System.out.println("[SERVIDOR] 100 registros simulados (ordem aleatória) adicionados.");
+        System.out.println("[SERVIDOR] 100 registros simulados (IDs aleatórios) adicionados.");
     }
+
 }

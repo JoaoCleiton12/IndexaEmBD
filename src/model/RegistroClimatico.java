@@ -20,7 +20,7 @@ public class RegistroClimatico {
         this.dataHora = LocalDateTime.now();
     }
 
-    // Getters
+
     public int getIdRegistro() { return idRegistro; }
     public String getIdDispositivo() { return idDispositivo; }
     public LocalDateTime getDataHora() { return dataHora; }

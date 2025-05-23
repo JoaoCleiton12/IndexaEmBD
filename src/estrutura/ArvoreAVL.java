@@ -90,7 +90,7 @@ public class ArvoreAVL {
         if (fb > 1) {
             if (fatorBalanceamento(no.getEsquerda()) < 0) {
                 no.setEsquerda(rotacionarEsquerda(no.getEsquerda()));
-                ultimaRotacao = "rotação dupla esquerda-direita";
+                ultimaRotacao = "rotação dupla direita";
             } else {
                 ultimaRotacao = "rotação simples direita";
             }
@@ -100,7 +100,7 @@ public class ArvoreAVL {
         if (fb < -1) {
             if (fatorBalanceamento(no.getDireita()) > 0) {
                 no.setDireita(rotacionarDireita(no.getDireita()));
-                ultimaRotacao = "rotação dupla direita-esquerda";
+                ultimaRotacao = "rotação dupla esquerda";
             } else {
                 ultimaRotacao = "rotação simples esquerda";
             }
@@ -151,4 +151,16 @@ public class ArvoreAVL {
             emOrdem(no.getDireita(), out);
         }
     }
+
+    public int buscarContandoPassos(int chave) {
+        return contarPassos(raiz, chave, 1);
+    }
+
+    private int contarPassos(NoAVL no, int chave, int passos) {
+        if (no == null) return -1;
+        if (chave == no.getChave()) return passos;
+        if (chave < no.getChave()) return contarPassos(no.getEsquerda(), chave, passos + 1);
+        else return contarPassos(no.getDireita(), chave, passos + 1);
+    }
+
 }
